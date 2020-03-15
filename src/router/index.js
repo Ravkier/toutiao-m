@@ -21,7 +21,7 @@ const routes = [{
   name: 'Home',
   component: Layout,
   children: [{
-    path: '',
+    path: '/',
     component: Home // 二级路由主页
   }, {
     path: '/question',
