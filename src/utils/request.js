@@ -5,6 +5,7 @@
 import axios from 'axios'
 import JSONBig from 'json-bigint' // 引入大数字
 import store from '@/store' // 引入store实例对象
+import router from '@/router' // 引入router对象
 
 // axios.create() 相当于new了一个新的axios实例
 const instance = axios.create({
@@ -37,7 +38,64 @@ instance.interceptors.response.use(function (response) {
     // 失败 没有response.data 不存在
     return response.data
   }
-}, function (error) {
+}, async function (error) {
+  // 只要是401 错误 就是 token失效错误
+  /**
+     * error
+     *      config 是出现错误的请求信息
+     *      request 请求对象
+     *      response 响应信息
+     */
+  if (error.response && error.response.status === 401) {
+    const path = {
+      path: '/login',
+      query: {
+        // 需要传递的query参数
+        redirectUrl: router.currentRoute.fullpath // 表示登录页需要跳转的地址
+      }
+    }
+    // 如果token失效了就会报401 错误
+    if (store.state.user.refresh_token) {
+      // 如果有refresh_token 就换取用户token
+      // 要用没有拦截器的axios 来发 刷新token的请求 ，放置死循环
+      try {
+        const result = await axios({
+          method: 'put',
+          url: 'http://ttapi.research.itcast.cn/app/v1_0/authorizations', // 完整的url地址
+          headers: {
+            Authorization: `Bearer ${store.state.user.refresh_token}` // 在请求头中注入refresh_token
+          }
+        })
+        // await 后面是promise执行后的逻辑
+        // 更新vuex中的数据
+        store.commit('updateUser', {
+          // 根据载荷 对应数据
+          user: {
+            token: result.date.data.token, // 最新的token
+            refresh_token: store.state.user.refresh_token
+          }
+        })
+        // 需要把之前的错误请求再次发出去
+        return instance(error.config) // 相当于执行之前401错误的请求
+        // 返回的目的继续执行请求执行链下得代码
+      } catch (error) {
+        // 失败意味着， 重新获取失败
+        // 只能重新登录， 之前要删除掉token， 此时token失效refresh_token 也失效
+        store.commit('delUser')
+        // 重新跳到登录页面
+        router.push(path)
+      }
+    } else {
+      // 如果没有refresh_token 直接跳到登录页
+    //   router.push('/login')
+      // 实现一种 token失效 重新登录再次回到本次页面
+      // 方法： 把我失效前所在的页面地址传给登录页面
+      //  获得token 后 ， 就判断有没有需要登录的地址，如果没有就跳转主页
+      //  router.currentRoute // 表示路由信息对象， 里面包含路由地址 和参数  router.currentRoute.fullpath 当前路由的带参数的地址
+      router.push(path)
+    }
+  }
+
   return Promise.reject(error) // 错误返回到catch中
 })
 
