@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import '@/permisstion' // 权限拦截
 import store from './store'
 import 'amfe-flexible' // 引入自动适配插件
 import Vant from 'vant' // 引入vant组件库
