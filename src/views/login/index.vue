@@ -12,7 +12,7 @@
     </van-field>
   </van-cell-group>
   <div class="login-box">
-    <van-button type="info" round size="small" block>登录</van-button>
+    <van-button @click="login" type="info" round size="small" block>登录</van-button>
   </div>
 </div>
 
@@ -49,7 +49,7 @@ export default {
         return false // false表示校验没通过 通过了返回turn
       }
       // 手机号格式
-      if (!/^1[3-9]\d{8}$/.test(this.loginForm.mobile)) {
+      if (!/^1[3-9]\d{9}$/.test(this.loginForm.mobile)) {
         this.errorMessage.mobile = '手机格式不正确'
         return false // 格式不正确返回false
       }
@@ -72,8 +72,10 @@ export default {
     },
     // 登录校验
     async login () {
+      const valueMobile = this.checkMobile()
+      const valueCode = this.checkCode()
       // 登录的时候他们都为true 就能通过
-      if (this.checkMobile() && this.checkCode()) {
+      if (valueMobile && valueCode) {
         try {
           const result = await login(this.loginForm)
           this.updateUser({ user: result }) // 更行token 和refresh_token
@@ -81,7 +83,8 @@ export default {
           this.$route.push(redirectUrl || '/') // 如果进来之前有地址就返回 之前的地址 ，如果没有就返回首页
         } catch (error) {
           // 提示用户登录错误的消息
-          this.$notify({ message: '用户名或者验证码错误', duration: 800 })
+          // this.$notify({ message: '用户名或者验证码错误', duration: 800 })
+          this.$gnotify({ message: '用户名或者验证码错误' })
         }
       }
     }
