@@ -20,7 +20,7 @@
 
 <script>
 // 引入login方法
-import { login } from '@/api/user.js'
+import { login } from '@/api/user'
 import { mapMutations } from 'vuex' // 辅助函数
 
 export default {
@@ -80,7 +80,7 @@ export default {
           const result = await login(this.loginForm)
           this.updateUser({ user: result }) // 更行token 和refresh_token
           const { redirectUrl } = this.$route.query // 获取地址栏的参数
-          this.$route.push(redirectUrl || '/') // 如果进来之前有地址就返回 之前的地址 ，如果没有就返回首页
+          this.$router.push(redirectUrl || '/') // 如果进来之前有地址就返回 之前的地址 ，如果没有就返回首页
         } catch (error) {
           // 提示用户登录错误的消息
           // this.$notify({ message: '用户名或者验证码错误', duration: 800 })

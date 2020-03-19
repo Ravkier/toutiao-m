@@ -7,22 +7,33 @@ import JSONBig from 'json-bigint' // 引入大数字
 import store from '@/store' // 引入store实例对象
 import router from '@/router' // 引入router对象
 
-// axios.create() 相当于new了一个新的axios实例
+// // axios.create() 相当于new了一个新的axios实例
+// const instance = axios.create({
+//   // 构造参数 传入一下配置，和defaults一样
+//   baseURL: 'http://ttapi.research.itcast.cn/app/v1_0', // 基础请求地址
+//   // 后台响应回来，但没到axios的响应拦截器执行时
+//   transformResponse: [function (data) {
+//     // data 响应回来的字符串  处理大数字
+//     return data ? JSONBig.parse(data) : {}
+//   }]
+
+// })
+// 创建一个axios实例
 const instance = axios.create({
-  // 构造参数 传入一下配置，和defaults一样
-  baseURL: 'http://ttapi.research.itcast.cn/app/v1_0', // 基础请求地址
-  // 后台响应回来，但没到axios的响应拦截器执行时
+  baseURL: 'http://ttapi.research.itcast.cn/app/v1_0', // 请求的基地址
   transformResponse: [function (data) {
-    // data 响应回来的字符串  处理大数字
+    // 后端响应回来的字符串
     return data ? JSONBig.parse(data) : {}
   }]
-
 })
+
 // token 的注入 实在请求之前 ，请求拦截器地方
 instance.interceptors.request.use(function (config) {
   // 成功 要给 header 注入token信息
 //   当store.state.user.token 有值就执行后面赋值
-  store.state.user.token && (config.header.Authorization = `Bearer ${store.state.user.token}`)
+  if (store.state.user.token) {
+    config.headers.Authorization = `Bearer ${store.state.user.token}` // 将token 统一注入到headers中
+  }
   return config
 }, function (error) {
   return Promise.reject(error) // 返回错误 错误的话直接写到axios中的catch中
@@ -51,7 +62,7 @@ instance.interceptors.response.use(function (response) {
       path: '/login',
       query: {
         // 需要传递的query参数
-        redirectUrl: router.currentRoute.fullpath // 表示登录页需要跳转的地址
+        redirectUrl: router.currentRoute.fullPath // 表示登录页需要跳转的地址
       }
     }
     // 如果token失效了就会报401 错误
@@ -92,6 +103,7 @@ instance.interceptors.response.use(function (response) {
       // 方法： 把我失效前所在的页面地址传给登录页面
       //  获得token 后 ， 就判断有没有需要登录的地址，如果没有就跳转主页
       //  router.currentRoute // 表示路由信息对象， 里面包含路由地址 和参数  router.currentRoute.fullpath 当前路由的带参数的地址
+      store.commit('delUser')
       router.push(path)
     }
   }
