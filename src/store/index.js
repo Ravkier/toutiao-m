@@ -25,7 +25,7 @@ export default new Vuex.Store({
     delUser (state) {
       state.user = {} // 将token中的数据清空
       // 本地也需要更新
-      auth.setUser() // 删除本地缓存中的token
+      auth.delUser() // 删除本地缓存中的token
     }
   },
   actions: {

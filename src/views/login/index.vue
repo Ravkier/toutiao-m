@@ -78,7 +78,7 @@ export default {
       if (valueMobile && valueCode) {
         try {
           const result = await login(this.loginForm)
-          this.updateUser({ user: result }) // 更行token 和refresh_token
+          this.updateUser({ user: result }) // 更新token 和refresh_token
           const { redirectUrl } = this.$route.query // 获取地址栏的参数
           this.$router.push(redirectUrl || '/') // 如果进来之前有地址就返回 之前的地址 ，如果没有就返回首页
         } catch (error) {

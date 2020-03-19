@@ -1,13 +1,13 @@
 <template>
   <div class='container'>
       <van-tabs>
-        <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
+        <van-tab :title="item.name" v-for="item in channels" :key="item.id">
           <!-- <div class="scroll-wrapper">
             <van-cell-group>
               <van-cell title="标题" v-for="item in 20" :key="item"></van-cell>
           </van-cell-group>
           </div> -->
-          <ArticleList></ArticleList>
+          <ArticleList :channel_id="item.id"></ArticleList>
         </van-tab>
       </van-tabs>
       <span class="bar_btn">
@@ -19,7 +19,23 @@
 
 <script>
 import ArticleList from '@/views/home/components/article-list.vue'
+import { getMyChannels } from '@/api/channels'
 export default {
+  data () {
+    return {
+      channels: [] // 接受频道数据
+    }
+  },
+  methods: {
+    // 获取频道数据
+    async getMyChannels () {
+      const data = await getMyChannels() // 接受返回的数据结果
+      this.channels = data.channels // 数据赋值
+    }
+  },
+  created () {
+    this.getMyChannels()
+  },
   components: {
     ArticleList
   }
