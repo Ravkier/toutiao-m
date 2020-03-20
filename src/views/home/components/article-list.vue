@@ -10,13 +10,13 @@
               <h3 class="van-ellipsis">{{ item.title }}</h3>
               <!-- 三图 -->
               <div class="img_box" v-if="item.cover.type === 3">
-                <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
-                <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
-                <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
+                <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[0]" />
+                <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[1]" />
+                <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[2]" />
               </div>
               <!-- 单图 -->
               <div class="img_box" v-if="item.cover.type === 1">
-                <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
+                <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[0]" />
               </div>
               <div class="info_box">
                 <span>{{ item.aut_name }}</span>
