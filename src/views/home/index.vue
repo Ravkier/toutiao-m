@@ -7,23 +7,30 @@
               <van-cell title="标题" v-for="item in 20" :key="item"></van-cell>
           </van-cell-group>
           </div> -->
-          <ArticleList :channel_id="item.id"></ArticleList>
+          <ArticleList @showAction="openAction" :channel_id="item.id"></ArticleList>
         </van-tab>
       </van-tabs>
       <span class="bar_btn">
         <!-- 放入图标 vant图标 -->
          <van-icon name='wap-nav'></van-icon>
       </span>
+      <!-- 放置一个弹层组件 -->
+      <van-popup v-model="showMoreAction">
+        <!-- 放置反馈组件 -->
+        <MoreAction  />
+      </van-popup>
   </div>
 </template>
 
 <script>
 import ArticleList from '@/views/home/components/article-list.vue'
+import MoreAction from '@/views/home/components/more-action.vue'
 import { getMyChannels } from '@/api/channels'
 export default {
   data () {
     return {
-      channels: [] // 接受频道数据
+      channels: [], // 接受频道数据
+      showMoreAction: false // 控制是否显示弹窗
     }
   },
   methods: {
@@ -31,13 +38,18 @@ export default {
     async getMyChannels () {
       const data = await getMyChannels() // 接受返回的数据结果
       this.channels = data.channels // 数据赋值
+    },
+    // 控制子组件arction-list 触发事件
+    openAction () {
+      this.showMoreAction = true // 控制开关
     }
   },
   created () {
     this.getMyChannels()
   },
   components: {
-    ArticleList
+    ArticleList,
+    MoreAction
   }
 }
 </script>
