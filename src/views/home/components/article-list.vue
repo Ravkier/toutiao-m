@@ -36,7 +36,25 @@
 
 <script>
 import { getArticles } from '@/api/artucles'
+import eventBus from '@/utils/eventbus'
 export default {
+  // 初始化函数
+  created () {
+    eventBus.$on('delArticle', (artId, channelId) => {
+      // 判断传递过来的频道等于自身的频道
+      if (channelId === this.channel_id) {
+        const index = this.articles.findIndex(item => item.art_id.toString() === artId)
+        if (index > -1) {
+          this.articles.splice(index, 1) // 删除对应索引的数据
+        }
+        // 列表数据删光后 不会触发load事件
+        if (this.articles.length === 0) {
+          // 删光数据后手动触发页面加载
+          this.onLoad()
+        }
+      }
+    })
+  },
   data () {
     return {
       successText: '', // 成功时的数据

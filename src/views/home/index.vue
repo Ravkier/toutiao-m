@@ -1,6 +1,6 @@
 <template>
   <div class='container'>
-      <van-tabs>
+      <van-tabs v-model="activeIndex">
         <van-tab :title="item.name" v-for="item in channels" :key="item.id">
           <!-- <div class="scroll-wrapper">
             <van-cell-group>
@@ -17,7 +17,7 @@
       <!-- 放置一个弹层组件 -->
       <van-popup v-model="showMoreAction">
         <!-- 放置反馈组件 -->
-        <MoreAction  />
+        <MoreAction @dislike="dislikeArticle" />
       </van-popup>
   </div>
 </template>
@@ -26,12 +26,15 @@
 import ArticleList from '@/views/home/components/article-list.vue'
 import MoreAction from '@/views/home/components/more-action.vue'
 import { getMyChannels } from '@/api/channels'
+import { dislikeArticles } from '@/api/artucles.js'
+import eventbus from '@/utils/eventbus' //
 export default {
   data () {
     return {
       channels: [], // 接受频道数据
       showMoreAction: false, // 控制是否显示弹窗
-      ArticleId: null // 储存id
+      ArticleId: null, // 储存id
+      activeIndex: 0 // 知道tabs选定状态
     }
   },
   methods: {
@@ -44,6 +47,22 @@ export default {
     openAction (artId) {
       this.showMoreAction = true // 控制开关
       this.ArticleId = artId // 把传过来的id 储存
+    },
+    async dislikeArticle () {
+      // 调用不感兴趣接口
+      try {
+        await dislikeArticles({
+          target: this.ArticleId // 不感兴趣id
+        })
+        this.$gnotify({ type: 'success', message: '操作成功' })
+        // 利用事件广播 通知对呀的tab
+        // 除了文章id之外 ，还要知道所在的频道
+        eventbus.$emit('delArticle', this.ArticleId, this.channels[this.activeIndex].id)
+        // 此时关闭弹层
+        this.showMoreAction = false
+      } catch (error) {
+        this.$gnotify({ message: '操作失败' })
+      }
     }
   },
   created () {

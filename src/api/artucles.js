@@ -13,3 +13,14 @@ export function getArticles (params) {
     params: { with_top: 1, ...params }
   })
 }
+
+/**
+ * 不感兴趣的文章接口
+ */
+export function dislikeArticles (data) {
+  return request({
+    url: '/article/dislikes',
+    method: 'post',
+    data
+  })
+}
