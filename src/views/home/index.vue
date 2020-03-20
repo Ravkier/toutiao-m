@@ -30,7 +30,8 @@ export default {
   data () {
     return {
       channels: [], // 接受频道数据
-      showMoreAction: false // 控制是否显示弹窗
+      showMoreAction: false, // 控制是否显示弹窗
+      ArticleId: null // 储存id
     }
   },
   methods: {
@@ -40,8 +41,9 @@ export default {
       this.channels = data.channels // 数据赋值
     },
     // 控制子组件arction-list 触发事件
-    openAction () {
+    openAction (artId) {
       this.showMoreAction = true // 控制开关
+      this.ArticleId = artId // 把传过来的id 储存
     }
   },
   created () {
