@@ -9,7 +9,7 @@
       </div>
       <van-grid class="van-hairline--left">
         <van-grid-item v-for="(item,index) in channels" :key="item.id">
-          <span @click="$emit('selectChannel', item.id)" class="f12">{{ item.name }}</span>
+          <span @click="$emit('selectChannel', item.id)" :class="{red: index === activeIndex}" class="f12">{{ item.name }}</span>
           <!-- 应该在进入编辑状态时显示 退出不显示 -->
           <van-icon v-if="index != 0 && editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
@@ -41,6 +41,11 @@ export default {
       required: true, // 必传
       type: Array, // 数组类型
       default: () => [] // 此函数默认返回一个空数组
+    },
+    activeIndex: {
+      required: true,
+      type: Number,
+      default: 0
     }
   },
   methods: {
