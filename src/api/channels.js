@@ -1,16 +1,36 @@
+import store from '@/store'
 /**
  * 负责处理频道数据
  */
 
 import request from '@/utils/request'
+const CACHE_CHANNEL_V = 'm-heima-v' // 登录的
+const CACHE_CHANNEL_T = 'm-heima-t' // 游客的
 
 /**
-  * 获取我的频道数据
+  * 获取我的频道数据 没有参数 ，匿名用户也可以获取数据
+  *  改成本地化方法
   */
 export function getMyChannels () {
-  return request({
-    url: '/user/channels'
+  return new Promise(function (resolve, reject) {
+    // 支持本地化缓存 要区分当前是登录用户还是游客用户
+    // 用户和游客区别 判断有没有token
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    // 去缓存中读数据
+    const str = localStorage.getItem(key) // 通过key获取缓存中的用户的频道数据
+    if (str) {
+      resolve({ channels: JSON.parse(str) })
+    } else {
+      request({ url: '/user/channels' }).then(result => {
+        // 获取请求的结果
+        localStorage.setItem(key, JSON.stringify(result.channels))// 放入本地缓存
+        resolve(result) // 表示直接成功执行 ，获取频道数据
+      }) // 得到数据列表 把数据放到缓存中
+    }
   })
+  // return request({
+  //   url: '/user/channels'
+  // })
 }
 
 /**
