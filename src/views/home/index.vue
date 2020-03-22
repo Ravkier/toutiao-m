@@ -24,7 +24,7 @@
       <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
         <!-- 频道编辑组件 -->
         <!-- 将父组件的数据传给子组件 -->
-        <channelEdit :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels" />
+        <channelEdit @delChannel="delChannel" :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels" />
       </van-action-sheet>
   </div>
 </template>
@@ -32,7 +32,7 @@
 <script>
 import ArticleList from '@/views/home/components/article-list.vue'
 import MoreAction from '@/views/home/components/more-action.vue'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel } from '@/api/channels'
 import { dislikeArticles, reportArticles } from '@/api/artucles.js'
 import eventbus from '@/utils/eventbus' //
 import channelEdit from '@/views/home/components/channel-edit.vue'
@@ -47,6 +47,20 @@ export default {
     }
   },
   methods: {
+    // 删除频道
+    async delChannel (id) {
+      try {
+        await delChannel(id)// 调用api方法删除缓存中的数据
+        const index = this.channels.findIndex(item => item.id === id)
+        // 删除对应的索引
+        if (index <= this.activeIndex) {
+          this.activeIndex = this.activeIndex - 1
+        }
+        this.channels.splice(index, 1)
+      } catch (error) {
+        this.$gnotify({ message: '删除频道失败' })
+      }
+    },
     // 获取频道数据
     async getMyChannels () {
       const data = await getMyChannels() // 接受返回的数据结果
