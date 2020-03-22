@@ -24,7 +24,7 @@
       <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
         <!-- 频道编辑组件 -->
         <!-- 将父组件的数据传给子组件 -->
-        <channelEdit :channels="channels" />
+        <channelEdit @selectChannel="selectChannel" :channels="channels" />
       </van-action-sheet>
   </div>
 </template>
@@ -51,6 +51,13 @@ export default {
     async getMyChannels () {
       const data = await getMyChannels() // 接受返回的数据结果
       this.channels = data.channels // 数据赋值
+    },
+    // 当子组件触发事件时 触发方法
+    selectChannel (id) {
+      // 找到id对应频道的索引
+      const index = this.channels.findIndex(item => item.id === id)
+      this.activeIndex = index // 激活所在索引
+      this.showChannelEdit = false // 关闭弹层
     },
     // 控制子组件arction-list 触发事件
     openAction (artId) {

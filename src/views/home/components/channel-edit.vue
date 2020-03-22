@@ -9,7 +9,7 @@
       </div>
       <van-grid class="van-hairline--left">
         <van-grid-item v-for="(item,index) in channels" :key="item.id">
-          <span class="f12">频道{{ item.name }}</span>
+          <span @click="$emit('selectChannel', item.id)" class="f12">{{ item.name }}</span>
           <!-- 应该在进入编辑状态时显示 退出不显示 -->
           <van-icon v-if="index != 0 && editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
