@@ -12,3 +12,12 @@ export function getMyChannels () {
     url: '/user/channels'
   })
 }
+
+/**
+ * 获取全部频道数据
+ */
+export function getAllChannels () {
+  return request({
+    url: '/channels'
+  })
+}
