@@ -19,8 +19,9 @@
       <div class="tit">可选频道：</div>
       <van-grid class="van-hairline--left">
         <van-grid-item v-for="item in optionalChannels" :key="item.id">
-          <span class="f12">频道{{ item.name }}</span>
-          <van-icon class="btn" name="plus"></van-icon>
+          <span class="f12">{{ item.name }}</span>
+          <!-- 自定义一个事件传出一个对象 -->
+          <van-icon @click="$emit('addChannel',item)" class="btn" name="plus"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>

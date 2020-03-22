@@ -24,7 +24,8 @@
       <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
         <!-- 频道编辑组件 -->
         <!-- 将父组件的数据传给子组件 -->
-        <channelEdit @delChannel="delChannel" :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels" />
+        <channelEdit @addChannel="addChannel"
+        @delChannel="delChannel" :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels" />
       </van-action-sheet>
   </div>
 </template>
@@ -32,7 +33,7 @@
 <script>
 import ArticleList from '@/views/home/components/article-list.vue'
 import MoreAction from '@/views/home/components/more-action.vue'
-import { getMyChannels, delChannel } from '@/api/channels'
+import { getMyChannels, delChannel, addChannel } from '@/api/channels'
 import { dislikeArticles, reportArticles } from '@/api/artucles.js'
 import eventbus from '@/utils/eventbus' //
 import channelEdit from '@/views/home/components/channel-edit.vue'
@@ -47,6 +48,11 @@ export default {
     }
   },
   methods: {
+    // 添加频道
+    async addChannel (channel) {
+      await addChannel(channel) // 传入参数写入缓存
+      this.channels.push(channel) // 添加到data中的数据
+    },
     // 删除频道
     async delChannel (id) {
       try {

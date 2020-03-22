@@ -60,3 +60,16 @@ export function delChannel (id) {
     }
   })
 }
+/**
+ * 添加频道的方法
+ * @params channel 是{id：1，name：'css'}
+ */
+export function addChannel (channel) {
+  return new Promise(function (resolve, reject) {
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    const channels = JSON.parse(localStorage.getItem(key)) // 转化数组
+    channels.push(channel) // 将添加的频道数据添加到队尾
+    localStorage.setItem(key, JSON.stringify(channels)) // 重新写入缓存
+    resolve() // 执行成功
+  })
+}
