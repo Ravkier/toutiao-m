@@ -41,3 +41,22 @@ export function getAllChannels () {
     url: '/channels'
   })
 }
+/**
+ * 删除频道
+ * @params id 删除的id
+ */
+export function delChannel (id) {
+  return new Promise(function (resolve, reject) {
+    // 删除频道时 都有数据
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    const channels = JSON.parse(localStorage.getItem(key)) // 直接把字符串转化成对象
+    const index = channels.findIndex(item => item.id === id)
+    if (index > -1) {
+      channels.splice(index, 1)
+      localStorage.setItem(key, JSON.stringify(channels)) // 重新写入缓存
+      resolve({ message: '删除成功' }) // 执行成功
+    } else {
+      reject(new Error('没有找到对应的频道'))
+    }
+  })
+}
