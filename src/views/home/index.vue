@@ -10,9 +10,9 @@
           <ArticleList @showAction="openAction" :channel_id="item.id"></ArticleList>
         </van-tab>
       </van-tabs>
-      <span class="bar_btn">
+      <span class="bar_btn" @click="showChannelEdit = true">
         <!-- 放入图标 vant图标 -->
-         <van-icon name='wap-nav'></van-icon>
+         <van-icon  name='wap-nav'></van-icon>
       </span>
       <!-- 放置一个弹层组件 -->
       <van-popup v-model="showMoreAction">
@@ -20,6 +20,11 @@
         <!-- 两个用一个方法 -->
         <MoreAction @report="dislikeOrReport('report', $event)" @dislike="dislikeOrReport('dislike')" />
       </van-popup>
+      <!-- 频道编辑放在弹窗里 -->
+      <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
+        <!-- 频道编辑组件 -->
+        <channelEdit />
+      </van-action-sheet>
   </div>
 </template>
 
@@ -29,13 +34,15 @@ import MoreAction from '@/views/home/components/more-action.vue'
 import { getMyChannels } from '@/api/channels'
 import { dislikeArticles, reportArticles } from '@/api/artucles.js'
 import eventbus from '@/utils/eventbus' //
+import channelEdit from '@/views/home/components/channel-edit.vue'
 export default {
   data () {
     return {
       channels: [], // 接受频道数据
       showMoreAction: false, // 控制是否显示弹窗
       ArticleId: null, // 储存id
-      activeIndex: 0 // 知道tabs选定状态
+      activeIndex: 0, // 知道tabs选定状态
+      showChannelEdit: false // 是否显示频道编辑组件
     }
   },
   methods: {
@@ -88,12 +95,25 @@ export default {
   },
   components: {
     ArticleList,
-    MoreAction
+    MoreAction,
+    channelEdit
   }
 }
 </script>
 
 <style lang='less' scoped>
+// 面板样式
+.van-action-sheet {
+  max-height: 100%;
+  height: 100%;
+  .van-action-sheet__header {
+    background: #3296fa;
+    color: #fff;
+    .van-icon-close {
+      color: #fff;
+    }
+  }
+}
 .van-tabs {
   height: 100%;
   display: flex;
