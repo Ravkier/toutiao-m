@@ -17,7 +17,8 @@
       <!-- 放置一个弹层组件 -->
       <van-popup v-model="showMoreAction">
         <!-- 放置反馈组件 -->
-        <MoreAction @dislike="dislikeArticle" />
+        <!-- 两个用一个方法 -->
+        <MoreAction @report="dislikeOrReport('report', $event)" @dislike="dislikeOrReport('dislike')" />
       </van-popup>
   </div>
 </template>
@@ -26,7 +27,7 @@
 import ArticleList from '@/views/home/components/article-list.vue'
 import MoreAction from '@/views/home/components/more-action.vue'
 import { getMyChannels } from '@/api/channels'
-import { dislikeArticles } from '@/api/artucles.js'
+import { dislikeArticles, reportArticles } from '@/api/artucles.js'
 import eventbus from '@/utils/eventbus' //
 export default {
   data () {
@@ -48,12 +49,14 @@ export default {
       this.showMoreAction = true // 控制开关
       this.ArticleId = artId // 把传过来的id 储存
     },
-    async dislikeArticle () {
+    // 举报或者不喜欢
+    // operateType 操作类型
+    async dislikeOrReport (operateType, type) {
       // 调用不感兴趣接口
       try {
-        await dislikeArticles({
+        operateType === 'dislike' ? await dislikeArticles({
           target: this.ArticleId // 不感兴趣id
-        })
+        }) : await reportArticles({ target: this.ArticleId, type })
         this.$gnotify({ type: 'success', message: '操作成功' })
         // 利用事件广播 通知对呀的tab
         // 除了文章id之外 ，还要知道所在的频道
@@ -64,6 +67,21 @@ export default {
         this.$gnotify({ message: '操作失败' })
       }
     }
+    // // 举报
+    // async reportArticle (type) {
+    //   try {
+    //     // 调用举报文章接口
+    //     await reportArticles({ target: this.ArticleId, type })
+    //     this.$gnotify({ type: 'success', message: '操作成功' })
+    //     // 利用事件广播 通知对呀的tab
+    //     // 除了文章id之外 ，还要知道所在的频道
+    //     eventbus.$emit('delArticle', this.ArticleId, this.channels[this.activeIndex].id)
+    //     // 此时关闭弹层
+    //     this.showMoreAction = false
+    //   } catch (error) {
+    //     this.$gnotify({ message: '操作失败' })
+    //   }
+    // }
   },
   created () {
     this.getMyChannels()
