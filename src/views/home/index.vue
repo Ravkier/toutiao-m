@@ -23,7 +23,8 @@
       <!-- 频道编辑放在弹窗里 -->
       <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
         <!-- 频道编辑组件 -->
-        <channelEdit />
+        <!-- 将父组件的数据传给子组件 -->
+        <channelEdit :channels="channels" />
       </van-action-sheet>
   </div>
 </template>
