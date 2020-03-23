@@ -5,8 +5,9 @@
     <!-- 导航 -->
     <van-search @search="onSearch" v-model.trim="q"  placeholder="请输入搜索关键词" shape="round" />
     <van-cell-group class="suggest-box" v-if="q" >
-      <van-cell icon="search">
-        <span>j</span>ava
+      <van-cell @click="toResult(item)" icon="search" v-for="(item, index) in suggestList" :key="index">
+        <!-- <span>j</span>ava -->
+        {{ item }}
       </van-cell>
     </van-cell-group>
     <!-- 没有历史记录 隐藏掉 -->
@@ -16,7 +17,7 @@
         <van-icon @click="clear" name="delete"></van-icon>
       </div>
       <van-cell-group>
-        <van-cell @click="toSearchResult(item)" v-for="(item,index) in historyList" :key="index">
+        <van-cell @click="toResult(item)" v-for="(item,index) in historyList" :key="index">
           <a class="word_btn">{{ item }}</a>
           <!-- 注册删除事件 -->
           <!-- 会发生冒泡， vue可以用修饰符组织事件冒泡 -->
@@ -28,16 +29,39 @@
 </template>
 
 <script>
+import { getSuggestion } from '@/api/artucles.js'
 const key = 'toutiao-m-history' // 作为历史记录在本地缓存中
 export default {
   name: 'search',
   data () {
     return {
       q: '', // 关键字数据
-      historyList: JSON.parse(localStorage.getItem(key) || '[]')
+      historyList: JSON.parse(localStorage.getItem(key) || '[]'),
+      suggestList: [] // 联想搜索的建议
+    }
+  },
+  watch: {
+    q () {
+      clearTimeout(this.timer)
+      this.timer = setTimeout(async () => {
+        if (!this.q) {
+          // 没有关键字 没有内容
+          this.suggestList = []
+          return
+        }
+        const data = await getSuggestion({ q: this.q })
+        this.suggestList = data.options
+      }, 300)
     }
   },
   methods: {
+    // 跳到搜索
+    toResult (text) {
+      this.historyList.unshift(text) // 添加到历史记录中
+      this.historyList = Array.from(new Set(this.historyList)) // 去重
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+      this.$router.push({ path: '/search/result', query: { q: text } })
+    },
     // 搜索方法
     onSearch () {
       // 首先排除空
@@ -55,15 +79,15 @@ export default {
       this.historyList.splice(index, 1) // 删除对应的历史记录
       localStorage.setItem(key, JSON.stringify(this.historyList)) // 同步到本地
     },
-    // 跳到搜索的结果页
-    toSearchResult (text) {
-      // 跳到结果页
-      // this.$router 路由实例对象
-      // this.$route 路由信息对象
-      // params query 传参
-      // params 传参要更改路由
-      this.$router.push(`/search/result?q=${text}`) // query 传参
-    },
+    // // 跳到搜索的结果页
+    // toSearchResult (text) {
+    //   // 跳到结果页
+    //   // this.$router 路由实例对象
+    //   // this.$route 路由信息对象
+    //   // params query 传参
+    //   // params 传参要更改路由
+    //   this.$router.push(`/search/result?q=${text}`) // query 传参
+    // },
     // 清空历史记录
     async clear () {
       try {
