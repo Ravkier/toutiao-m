@@ -5,7 +5,8 @@
       <!-- 文章列表 -->
       <van-list finished-text="没有了" v-model="upLoading" :finished="finished" @load="onLoad">
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id.toString()">
+          <!-- 加to属性完成跳转 -->
+          <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <h3 class="van-ellipsis">{{ item.title }}</h3>
               <!-- 三图 -->
@@ -23,7 +24,8 @@
                 <span>{{ item.comm_count }}</span>
                 <span>{{ item.pubdate | reltTime }}</span>
                 <span class="close" v-if="$store.state.user.token">
-                  <van-icon @click="$emit('showAction', item.art_id.toString())" name="cross"></van-icon>
+                  <!-- 阻止事件冒泡 -->
+                  <van-icon @click.stop="$emit('showAction', item.art_id.toString())" name="cross"></van-icon>
                 </span>
               </div>
             </div>
