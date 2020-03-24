@@ -10,7 +10,7 @@
           <p class="name">{{ article.aut_name }}</p>
           <p class="time">{{ article.pubdate | reltTime }}</p>
         </div>
-        <van-button round size="small" type="info">{{ article.is_followed ? '已关注' : '+ 关注' }}</van-button>
+        <van-button :loading="followLoading" @click="follow" round size="small" type="info">{{ article.is_followed ? '已关注' : '+ 关注' }}</van-button>
       </div>
       <div class="content" v-html="article.content">
 
@@ -21,23 +21,58 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <van-button round size="small" :class="{active: article.attitude === 0}" plain icon="delete">不喜欢</van-button>
       </div>
+      <!-- 放置  detail 中 有padding-->
+      <Comment />
     </div>
+    <van-overlay :show="loading">
+      <div class="loading-container">
+        <van-loading />
+      </div>
+    </van-overlay>
   </div>
 </template>
 
 <script>
 import { getArticleInfo } from '@/api/artucles'
+import { followUser, unfollowUser } from '@/api/user'
+import Comment from './components/comment'
 export default {
+  components: {
+    Comment
+  },
   data () {
     return {
-      article: {} // 接收文章详情数据
+      article: {}, // 接收文章详情数据
+      followLoading: false, // 是否正在点击关注
+      loading: false // 遮罩层状态
     }
   },
   methods: {
     // 获取文章详情数据
     async getArticleInfo () {
+      this.loading = true
       const { artId } = this.$route.query
       this.article = await getArticleInfo(artId)
+      this.loading = false
+    },
+    // 关注或取消关注
+    async follow () {
+      // 调用关注和非关注
+      try {
+        if (this.article.is_followed) {
+          await unfollowUser(this.article.aut_id)
+        } else {
+          await followUser({ target: this.article.aut_id })
+        }
+        // pc端重新加载  移动端不会重新加载，修改对应的数据
+        this.article.is_followed = !this.article.is_followed // 修改状态
+        this.$gnotify({ type: 'success', message: '关注成功' })
+      } catch (error) {
+        this.$gnotify({ message: '操作失败' })
+      } finally {
+        // 无论成功还是 失败都会进入
+        this.followLoading = true
+      }
     }
   },
   created () {
@@ -52,6 +87,16 @@ export default {
   height: 100%;
   overflow-y: auto;
   box-sizing: border-box;
+}
+.loading-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.van-overlay {
+  background: none;
 }
 .detail {
   padding: 46px 10px 44px;
@@ -73,6 +118,7 @@ export default {
     position:sticky;
     background-color: #fff;
     top:46px;
+    z-index: 2;
     .text {
       flex: 1;
       padding-left: 10px;
