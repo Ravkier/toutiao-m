@@ -2,7 +2,7 @@
   <div class="container">
     <van-nav-bar left-arrow @click-left="$router.back()" title="编辑资料" right-text="保存"></van-nav-bar>
     <van-cell-group>
-      <van-cell is-link title="头像" center>
+      <van-cell @click="showPhoto = true" is-link title="头像" center>
         <van-image
           slot="default"
           width="1.5rem"
@@ -21,7 +21,7 @@
       <!-- 内容 -->
       <!-- 1 本地相册选择图片 -->
       <!-- 2 拍照 -->
-      <van-cell is-link title="本地相册选择图片"></van-cell>
+      <van-cell @click="openFileDialog" is-link title="本地相册选择图片"></van-cell>
       <van-cell is-link title="拍照"></van-cell>
     </van-popup>
     <!-- 昵称 -->
@@ -46,12 +46,14 @@
         @cancel="showBirthDay = false"
       />
     </van-popup>
+    <!-- 放置input type:'file' 类型 -->
+    <input @change="upload" ref="myFile" type="file" style="display: none" name="" id="">
   </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
-import { getUserProfile } from '@/api/user.js'
+import { getUserProfile, updataPhoto } from '@/api/user.js'
 export default {
   data () {
     return {
@@ -74,6 +76,18 @@ export default {
     }
   },
   methods: {
+    // 打开选择文件的对话框
+    openFileDialog () {
+      this.$refs.myFile.click()
+    },
+    async upload (params) {
+      // 当选择完 之后 就可以修改头像了
+      const data = new FormData()
+      data.append('photo', this.$refs.myFile.files[0])
+      const result = await updataPhoto(data)
+      this.user.photo = result.photo
+      this.showPhoto = false // 关闭弹层
+    },
     async getUserProfile () {
       this.user = await getUserProfile()
     },
