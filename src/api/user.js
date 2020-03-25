@@ -36,3 +36,11 @@ export function unfollowUser (autId) {
     method: 'DELETE'
   })
 }
+/**
+ * 获取用户的个人资料
+ */
+export function getUserInfo () {
+  return request({
+    url: '/user'
+  })
+}
