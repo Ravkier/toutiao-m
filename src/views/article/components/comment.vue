@@ -29,12 +29,14 @@
     </van-list>
     <div class="reply-container van-hairline--top">
       <van-field v-model="value" placeholder="写评论...">
+        <!-- 显示loading -->
         <van-loading v-if="submiting" slot="button" type="spinner" size="16px"></van-loading>
-        <span class="submit" v-else slot="button">提交</span>
+        <!-- 显示提交 防止重复提交 -->
+        <span class="submit" v-else @click="submit" slot="button">提交</span>
       </van-field>
     </div>
-        <!-- 回复 -->
-    <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
+        <!-- 回复  关闭面板评论id为空-->
+    <van-action-sheet @closed="reply.commentId = null" v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
       <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
         <div class="item van-hairline--bottom van-hairline--top" v-for="item in reply.list" :key="item.com_id.toString()">
           <van-image round width="1rem" height="1rem" fit="fill" :src="item.aut_photo" />
@@ -52,7 +54,7 @@
 </template>
 
 <script>
-import { getComments } from '@/api/artucles.js'
+import { getComments, commentsOrReply } from '@/api/artucles.js'
 export default {
   data () {
     return {
@@ -78,6 +80,54 @@ export default {
     }
   },
   methods: {
+    // 提交方法
+    async submit () {
+      // 判断是否登录
+      if (this.$store.state.user.token) {
+        // 登录了 ，是否有评论内容
+        if (!this.value) return false // 如果没有内容直接返回
+        this.submiting = true // 打开提交状态表示提交中
+        await this.$sleep(800)
+        // 提交评论
+        try {
+          const data = await commentsOrReply({
+            target: this.reply.commentId ? this.reply.commentId : this.$route.query.artId, // 要么文章id 要么评论id
+            content: this.value, // 评论内容
+            art_id: this.reply.commentId ? this.$route.query.artId : null
+          })
+          if (this.reply.commentId) {
+            // 存在表示对评论进行评论
+            this.reply.list.unshift(data.new_obj)
+            // 需要找到对应评论的id 将评论id的回复+1
+            const comment = this.comments.find(item => item.com_id.toString() === this.reply.commentId)
+            // 寻找文章评论中 等于当前评论id的id
+            comment && comment.reply_count++
+          } else {
+            // 表示对文章评论
+            this.comments.unshift(data.new_obj)
+          }
+          this.value = '' // 清空输入框
+        } catch (error) {
+          this.$gnotify({ message: '评论失败' })
+        }
+
+        // 调用完成之后 ， 添加的评论数据，添加到评论列表
+        this.submiting = false // 状态关闭
+      } else {
+        try {
+          // 提示用户
+          await this.$dialog.confirm({
+            message: '如果想要评论，你需要去登录'
+          })
+          this.$router.push({
+            path: '/login',
+            query: { redirectUrl: this.$route.fullPath }
+          })
+        } catch (error) {
+
+        }
+      }
+    },
     openReply (commentId) {
       // 打开评论方法
       this.showReply = true
