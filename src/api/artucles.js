@@ -70,3 +70,15 @@ export function getComments (params) {
     params
   })
 }
+/**
+ * 评论或者回复 支持两种
+ *  1文章评论
+ *  2评论评论
+ */
+export function commentsOrReply (data) {
+  return request({
+    url: '/comments',
+    method: 'post',
+    data
+  })
+}

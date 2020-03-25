@@ -21,7 +21,7 @@
           <p>{{ item.content }}</p>
           <p>
             <span class="time">{{ item.pubdate | reltTime }}</span>&nbsp;
-            <van-tag plain @click="openReply">{{ item.reply_count }} 回复</van-tag>
+            <van-tag plain @click="openReply(item.com_id.toString())">{{ item.reply_count }} 回复</van-tag>
           </p>
         </div>
       </div>
@@ -35,13 +35,13 @@
     </div>
         <!-- 回复 -->
     <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
-      <van-list v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
-        <div class="item van-hairline--bottom van-hairline--top" v-for="index in 8" :key="index">
-          <van-image round width="1rem" height="1rem" fit="fill" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+      <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
+        <div class="item van-hairline--bottom van-hairline--top" v-for="item in reply.list" :key="item.com_id.toString()">
+          <van-image round width="1rem" height="1rem" fit="fill" :src="item.aut_photo" />
           <div class="info">
-            <p><span class="name">一阵清风</span></p>
-            <p>评论的内容，。。。。</p>
-            <p><span class="time">两天内</span></p>
+            <p><span class="name">{{ item.aut_name }}</span></p>
+            <p>{{ item.content }}</p>
+            <p><span class="time">{{ item.pubdate | reltTime }}</span></p>
           </div>
         </div>
       </van-list>
@@ -72,14 +72,39 @@ export default {
         loading: false, // 是回复列表组件的状态
         finished: false, // 是回复列表组件的结束状态
         offset: null, // 偏移量 获取评论的评论的分页依据 c
-        list: [] // 用于存放 当前弹出的关于某个评论的回复列表的数据
+        list: [], // 用于存放 当前弹出的关于某个评论的回复列表的数据
+        commentId: null
       }
     }
   },
   methods: {
-    openReply () {
+    openReply (commentId) {
       // 打开评论方法
       this.showReply = true
+      this.reply.commentId = commentId
+      // 弹出面板重置数据
+      // 之前的数据清空
+      this.reply.list = []
+      this.reply.offset = null // 因为希望点击弹出回复面板的时候是新的数据
+      this.reply.finished = false // 将finished打开
+      this.reply.loading = true // 没有主动检查
+
+      this.getReply() // 弹出评论评论的层时 去请求数据
+    },
+    // 获取评论的评论
+    async getReply () {
+      const data = await getComments({
+        type: 'c',
+        source: this.reply.commentId,
+        offset: this.reply.offset // 评论的评论
+      })
+      // 需要将数据对夹到队尾
+      this.reply.list.push(...data.results)
+      this.reply.loading = false // 关闭加载
+      this.reply.finished = data.last_id === data.end_id
+      if (!this.reply.finished) {
+        this.reply.offset = data.last_id
+      }
     },
     // 超过一定距离的时候就会触发
     async onLoad () {
