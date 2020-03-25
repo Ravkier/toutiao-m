@@ -37,10 +37,18 @@ export function unfollowUser (autId) {
   })
 }
 /**
- * 获取用户的个人资料
+ * 获取用户的个人信息
  */
 export function getUserInfo () {
   return request({
     url: '/user'
+  })
+}
+/**
+ * 获取用户的资料
+ */
+export function getUserProfile () {
+  return request({
+    url: '/user/profile'
   })
 }
