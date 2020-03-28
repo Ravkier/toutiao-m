@@ -12,7 +12,8 @@ export default new Vuex.Store({
   state: {
     // 专门放置需要共享的状态
     // 调用getUser函数把token的状态放在user 中 作为共享状态
-    user: auth.getUser() // user作为我们缓存的token 就要先获取token
+    user: auth.getUser(), // user作为我们缓存的token 就要先获取token
+    photo: null // 用户头像
   },
   mutations: {
     // 修改token
@@ -26,6 +27,10 @@ export default new Vuex.Store({
       state.user = {} // 将token中的数据清空
       // 本地也需要更新
       auth.delUser() // 删除本地缓存中的token
+    },
+    // 更新photo
+    updatePhoto (state, payload) {
+      state.photo = payload.photo
     }
   },
   actions: {

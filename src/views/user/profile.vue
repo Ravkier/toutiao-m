@@ -54,6 +54,7 @@
 <script>
 import dayjs from 'dayjs'
 import { getUserProfile, updataPhoto, saveUserInfo } from '@/api/user.js'
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
@@ -76,6 +77,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updatePhoto']),
     // 保存用户信息
     async saveUser () {
       try {
@@ -95,6 +97,7 @@ export default {
       data.append('photo', this.$refs.myFile.files[0])
       const result = await updataPhoto(data)
       this.user.photo = result.photo
+      this.updatePhoto({ photo: result.photo }) // 将最新的头像地址设置给vuex数据
       this.showPhoto = false // 关闭弹层
     },
     async getUserProfile () {

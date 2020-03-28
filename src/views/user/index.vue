@@ -55,7 +55,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['delUser']), // 引入方法
+    ...mapMutations(['delUser', 'updatePhoto']), // 引入方法
     // 退出操作
     async lgout () {
       try {
@@ -71,6 +71,7 @@ export default {
     },
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+      this.updatePhoto({ photo: this.userInfo.photo }) // 调用mutation 设置头像
     }
   },
   created () {
