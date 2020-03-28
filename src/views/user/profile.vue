@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <van-nav-bar left-arrow @click-left="$router.back()" title="编辑资料" right-text="保存"></van-nav-bar>
+    <van-nav-bar left-arrow @click-left="$router.back()" @click-right="saveUser" title="编辑资料" right-text="保存"></van-nav-bar>
     <van-cell-group>
       <van-cell @click="showPhoto = true" is-link title="头像" center>
         <van-image
@@ -14,7 +14,7 @@
       </van-cell>
       <van-cell is-link title="名称" @click="showName = true" :value="user.name" />
       <van-cell is-link title="性别" @click="showGender = true" :value="user.gender === 0 ? '男' : '女' " />
-      <van-cell is-link title="生日" @click="showDate" :value="user.brithday" />
+      <van-cell is-link title="生日" @click="showDate" :value="user.birthday" />
     </van-cell-group>
     <!-- 放置头像 弹层 -->
     <van-popup :close-on-click-overlay="false" v-model="showPhoto" style="width:80%">
@@ -53,7 +53,7 @@
 
 <script>
 import dayjs from 'dayjs'
-import { getUserProfile, updataPhoto } from '@/api/user.js'
+import { getUserProfile, updataPhoto, saveUserInfo } from '@/api/user.js'
 export default {
   data () {
     return {
@@ -70,12 +70,21 @@ export default {
         // 放置个人资料
         name: '', // 用户昵称
         gender: 1, // 性别默认值
-        brithday: '', // 生日的默认值
+        birthday: '2002-01-01', // 生日的默认值
         photo: '' // 用户头像
       }
     }
   },
   methods: {
+    // 保存用户信息
+    async saveUser () {
+      try {
+        await saveUserInfo(this.user)
+        this.$gnotify({ type: 'success', message: '保存成功' })
+      } catch (error) {
+        this.$gnotify({ message: '保存失败' })
+      }
+    },
     // 打开选择文件的对话框
     openFileDialog () {
       this.$refs.myFile.click()
@@ -108,11 +117,11 @@ export default {
     },
     showDate () {
       this.showBirthDay = true
-      this.currentDate = new Date(this.user.brithday)
+      this.currentDate = new Date(this.user.birthday)
     },
     confirmDate () {
     // 当前选的生日 就是 currenDate
-      this.user.brithday = dayjs(this.currentDate).format('YYYY-MM-DD') // 将日期转化成字符串
+      this.user.birthday = dayjs(this.currentDate).format('YYYY-MM-DD') // 将日期转化成字符串
       this.showBirthDay = false // 关闭弹层
     }
   },
