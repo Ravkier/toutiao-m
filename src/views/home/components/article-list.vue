@@ -1,6 +1,6 @@
 <template>
   <!-- van-list 可以帮助我们实现上拉加载 -->
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll="remember" ref="myScroll">
     <van-pull-refresh v-model="downLoading" :success-text="successText" @refresh="onRefresh">
       <!-- 文章列表 -->
       <van-list finished-text="没有了" v-model="upLoading" :finished="finished" @load="onLoad">
@@ -56,6 +56,15 @@ export default {
         }
       }
     })
+    eventBus.$on('changeTab', (id) => {
+      if (id === this.channel_id) {
+        this.$nextTick(() => {
+          if (this.scrollTop && this.$refs.myScroll) {
+            this.$refs.myScroll.scrollTop = this.scrollTop
+          }
+        })
+      }
+    })
   },
   data () {
     return {
@@ -64,7 +73,8 @@ export default {
       upLoading: false, // 开启上拉加载
       finished: false, // 是否加载完所有数据
       articles: [], // 文章列表
-      timestamp: null // 定义一个历史时间戳
+      timestamp: null, // 定义一个历史时间戳
+      scrollTop: 0 // 记忆滚动位置
     }
   },
   props: {
@@ -76,6 +86,15 @@ export default {
     }
   },
   methods: {
+    // 记录滚动事件
+    remember (event) {
+      // 防抖 在函数一段时间之内只执行最后一次
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        // 记录当前的位置
+        this.scrollTop = event.target.scrollTop // 记录滚动的位置
+      }, 500)
+    },
     // 上拉记载
     async onLoad () {
       // // 强制判断总条数 超过100条就关闭
@@ -140,6 +159,13 @@ export default {
       //   this.downLoading = false
       //   this.successText = `更新了${arr.length}数据`
       // }, 1000)
+    }
+  },
+  activated () {
+    // 激活函数中 去判断当前是否 scrollTop
+    if (this.$refs.myScroll && this.scrollTop) {
+      // 判断滚动位置是否大于0
+      this.$refs.myScroll.scrollTop = this.scrollTop
     }
   }
 }

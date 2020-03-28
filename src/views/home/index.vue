@@ -1,6 +1,6 @@
 <template>
   <div class='container'>
-      <van-tabs v-model="activeIndex">
+      <van-tabs v-model="activeIndex" @change="changeTab">
         <van-tab :title="item.name" v-for="item in channels" :key="item.id">
           <!-- <div class="scroll-wrapper">
             <van-cell-group>
@@ -48,6 +48,11 @@ export default {
     }
   },
   methods: {
+    // 切换页签事件
+    changeTab () {
+      // 切换页签时 让对应的页签 中文章列表
+      eventbus.$emit('changeTab', this.channels[this.activeIndex].id)
+    },
     // 添加频道
     async addChannel (channel) {
       await addChannel(channel) // 传入参数写入缓存
