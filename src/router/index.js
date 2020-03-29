@@ -22,7 +22,10 @@ const routes = [{
   component: Layout,
   children: [{
     path: '/',
-    component: Home // 二级路由主页
+    component: Home, // 二级路由主页
+    meta: {
+      isAlive: true
+    }
   }, {
     path: '/question',
     component: question // 二级路由问答
